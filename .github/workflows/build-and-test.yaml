@@ -1,0 +1,93 @@
+name: Unit tests
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      RUST_VERSION: 1.72.1
+      SOLANA_VERSION: v1.14.16
+      ANCHOR_VERSION: 0.26.0
+    steps:
+      - name: Set rust version
+        run: |
+          rustup install ${{ env.RUST_VERSION }}
+          rustup default ${{ env.RUST_VERSION }}
+
+      - name: Solana cache
+        id: cache-solana
+        uses: actions/cache@v3
+        with:
+          path: |
+            /home/runner/.local/share/solana/
+            /home/runner/.local/config/solana/
+          key: ${{ runner.os }}-solana-${{ env.SOLANA_VERSION }}
+
+      - name: Install solana
+        if: steps.cache-solana.outputs.cache-hit != 'true'
+        run: |
+          SOLANA_INSTALLER_URL=https://release.solana.com/${{ env.SOLANA_VERSION }}/install
+          echo $SOLANA_INSTALLER_URL
+          sh -c "$(curl -sSfL $SOLANA_INSTALLER_URL)"
+          /home/runner/.local/share/solana/install/active_release/bin/solana-keygen new --no-bip39-passphrase
+
+      - name: Set solana path
+        run: echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Anchor cache
+        id: cache-anchor
+        uses: actions/cache@v3
+        with:
+          path: |
+            /home/runner/.cargo/bin/
+            /home/runner/.avm/
+          key: ${{ runner.os }}-anchor-${{ env.RUST_VERSION }}-${{ env.ANCHOR_VERSION }}
+
+      - name: Install anchor
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y pkg-config build-essential libudev-dev
+          cargo install --git https://github.com/project-serum/anchor avm --locked --force
+          avm install ${{ env.ANCHOR_VERSION }}
+
+      - name: Set anchor version
+        run: |
+          avm use ${{ env.ANCHOR_VERSION }}
+          anchor --version
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: anchor build
+
+      - name: Unit tests
+        run: cargo test
+
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17
+          cache: yarn
+
+      - name: Build client
+        run: |
+          cd npm-client
+          npm install
+          npm run build
+          cd ..
+
+      - name: Build admin client
+        run: |
+          cd npm-admin-client
+          npm install
+          npm run build
+          cd ..
+
+      - name: Anchor tests
+        run: yarn test
