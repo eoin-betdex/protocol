@@ -1,0 +1,20 @@
+name: 'Build protocol'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v3
+      id: cache-protocol-build
+      with:
+        path: |
+          /home/runner/.cargo/registry/index/
+          /home/runner/.cargo/registry/cache/
+          /home/runner/.cargo/git/db/
+          /home/runner/.cargo/.crates.toml
+          /home/runner/.cargo/.crates2.json
+          target/bpfel-unknown-unknown/
+          target/debug/
+          target/release/
+        key: ${{ runner.os }}-protocol-build-${{ hashFiles('**/Cargo.lock') }}
+
+    - shell: bash
+      run: anchor build

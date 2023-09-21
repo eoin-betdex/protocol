@@ -1,0 +1,25 @@
+name: 'Setup solana'
+inputs:
+  version:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v3
+      id: cache-solana
+      with:
+        path: |
+          /home/runner/.local/share/solana/
+          /home/runner/.config/solana/
+        key: ${{ runner.os }}-solana-${{ inputs.version }}
+
+    - if: steps.cache-solana.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        SOLANA_INSTALLER_URL=https://release.solana.com/${{ inputs.version }}/install
+        echo $SOLANA_INSTALLER_URL
+        sh -c "$(curl -sSfL $SOLANA_INSTALLER_URL)"
+        /home/runner/.local/share/solana/install/active_release/bin/solana-keygen new --no-bip39-passphrase
+
+    - shell: bash
+      run: echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH

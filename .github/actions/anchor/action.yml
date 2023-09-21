@@ -1,0 +1,28 @@
+name: 'Setup anchor'
+inputs:
+  version:
+    required: true
+  rust-version:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v3
+      id: cache-anchor
+      with:
+        path: |
+          /home/runner/.cargo/bin/
+          /home/runner/.avm/
+        key: ${{ runner.os }}-anchor-${{ inputs.rust-version }}-${{ inputs.version }}
+
+    - if: steps.cache-anchor.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y pkg-config build-essential libudev-dev
+        cargo install --git https://github.com/project-serum/anchor avm --locked --force
+        avm install ${{ inputs.version }}
+
+    - shell: bash
+      run: |
+        avm use ${{ inputs.version }}
+        anchor --version

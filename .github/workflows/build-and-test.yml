@@ -1,0 +1,65 @@
+name: Unit tests
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      RUST_VERSION: 1.72.1
+      SOLANA_VERSION: v1.14.16
+      ANCHOR_VERSION: 0.26.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install rust
+        uses: ./.github/actions/rust
+        with:
+          version: ${{ env.RUST_VERSION }}
+
+      - name: Install solana
+        uses: ./.github/actions/solana
+        with:
+          version: ${{ env.SOLANA_VERSION }}
+
+      - name: Install anchor
+        uses: ./.github/actions/anchor
+        with:
+          version: ${{ env.ANCHOR_VERSION }}
+          rust-version: ${{ env.RUST_VERSION }}
+
+      - name: Build
+        uses: ./.github/actions/build-protocol
+
+      - name: Unit tests
+        run: cargo test
+
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17
+          cache: yarn
+
+      - name: Build client
+        run: |
+          cd npm-client
+          npm install
+          npm run build
+          cd ..
+
+      - name: Build admin client
+        run: |
+          cd npm-admin-client
+          npm install
+          npm run build
+          cd ..
+
+      - name: Anchor tests
+        run: |
+          yarn install
+          yarn test

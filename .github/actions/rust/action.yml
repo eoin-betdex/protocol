@@ -1,0 +1,11 @@
+name: 'Setup rust'
+inputs:
+  version:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        rustup install ${{ inputs.version }}
+        rustup default ${{ inputs.version }}
