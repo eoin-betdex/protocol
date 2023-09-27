@@ -16,11 +16,25 @@ jobs:
           rust-version: 1.72.1
           solana-version: v1.14.16
           anchor-version: 0.26.0
-      - name: Create upgrade txs
-        uses: actions/solana-buffer-deploy@v0.1.6
+      - name: Create upgrade buffers
+        id: create-upgrade-buffers
+        uses: solana-nft-programs/solana-buffer-deploy-action@v0.1.6
         with:
           network: ${{ vars.SOLANA_ENDPOINT }}
           program: monaco_protocol
           keypair: ${{ secrets.DEPLOYER_KEYPAIR }}
           program-id: ${{ vars.PROGRAM_ID }}
           buffer-authority: ${{ vars.BUFFER_AUTHORITY }}
+      - name: Create upgrade transactions in Squads
+        uses: solana-nft-programs/squads-program-upgrade@v0.2.4
+        with:
+          network: ${{ vars.SOLANA_ENDPOINT }}
+          program-multisig: ${{ vars.MULTISIG_ADDRESS }}
+          program-id: ${{ vars.PROGRAM_ID }}
+          program-index: '1'
+          buffer: ${{ steps.create-upgrade-buffers.outputs.buffer }}
+          idl-buffer: ${{ steps.create-upgrade-buffers.outputs.idl-buffer }}
+          spill-address: ${{ vars.DEPLOYER_PUBLIC_KEY }}
+          authority: ${{ vars.BUFFER_AUTHORITY }}
+          name: 'TEST'
+          keypair: ${{ secrets.DEPLOYER_KEYPAIR }}
