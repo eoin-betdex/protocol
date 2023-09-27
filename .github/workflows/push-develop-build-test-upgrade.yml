@@ -6,9 +6,21 @@ on:
       - develop
 
 jobs:
-  build-and-test:
-    uses: ./.github/workflows/workflow-call-build-and-test.yml
-    with:
-      rust-version: 1.72.1
-      solana-version: v1.14.16
-      anchor-version: 0.26.0
+  build-test-upgrade:
+    environment: devnet-edge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and test
+        uses: ./.github/actions/build-and-test
+        with:
+          rust-version: 1.72.1
+          solana-version: v1.14.16
+          anchor-version: 0.26.0
+      - name: Create upgrade txs
+        uses: actions/solana-buffer-deploy@v0.1.6
+        with:
+          network: ${{ vars.SOLANA_ENDPOINT }}
+          program: monaco_protocol
+          keypair: ${{ secrets.DEPLOYER_KEYPAIR }}
+          program-id: ${{ vars.PROGRAM_ID }}
+          buffer-authority: ${{ vars.BUFFER_AUTHORITY }}
