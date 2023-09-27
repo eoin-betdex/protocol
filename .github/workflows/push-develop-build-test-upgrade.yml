@@ -10,12 +10,16 @@ jobs:
     environment: devnet-edge
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Build and test
         uses: ./.github/actions/build-and-test
         with:
           rust-version: 1.72.1
           solana-version: v1.14.16
           anchor-version: 0.26.0
+
       - name: Create upgrade buffers
         id: create-upgrade-buffers
         uses: solana-nft-programs/solana-buffer-deploy-action@v0.1.6
@@ -25,6 +29,7 @@ jobs:
           keypair: ${{ secrets.DEPLOYER_KEYPAIR }}
           program-id: ${{ vars.PROGRAM_ID }}
           buffer-authority: ${{ vars.BUFFER_AUTHORITY }}
+
       - name: Create upgrade transactions in Squads
         uses: solana-nft-programs/squads-program-upgrade@v0.2.4
         with:
