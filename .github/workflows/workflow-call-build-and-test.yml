@@ -1,18 +1,21 @@
-name: Unit tests
+name: Build and test
 
 on:
-  push:
-    branches:
-      - develop
-      - main
+  workflow_call:
+    inputs:
+      rust-version:
+          type: string
+          required: true
+      solana-version:
+          type: string
+          required: true
+      anchor-version:
+          type: string
+          required: true
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      RUST_VERSION: 1.72.1
-      SOLANA_VERSION: v1.14.16
-      ANCHOR_VERSION: 0.26.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,21 +23,23 @@ jobs:
       - name: Install rust
         uses: ./.github/actions/rust
         with:
-          version: ${{ env.RUST_VERSION }}
+          version: ${{ inputs.rust-version }}
 
       - name: Install solana
         uses: ./.github/actions/solana
         with:
-          version: ${{ env.SOLANA_VERSION }}
+          version: ${{ inputs.solana-version }}
 
       - name: Install anchor
         uses: ./.github/actions/anchor
         with:
-          version: ${{ env.ANCHOR_VERSION }}
-          rust-version: ${{ env.RUST_VERSION }}
+          version: ${{ inputs.anchor-version }}
+          rust-version: ${{ inputs.rust-version }}
 
       - name: Build
         uses: ./.github/actions/build-protocol
+        with:
+          rust-version: ${{ inputs.rust-version }}
 
       - name: Unit tests
         run: cargo test

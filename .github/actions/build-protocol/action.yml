@@ -1,4 +1,7 @@
 name: 'Build protocol'
+inputs:
+  rust-version:
+    required: true
 runs:
   using: "composite"
   steps:
@@ -14,7 +17,7 @@ runs:
           target/bpfel-unknown-unknown/
           target/debug/
           target/release/
-        key: ${{ runner.os }}-protocol-build-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-protocol-build-${{ inputs.rust-version }}-${{ hashFiles('**/Cargo.lock') }}
 
     - shell: bash
       run: anchor build

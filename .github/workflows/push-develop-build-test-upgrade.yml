@@ -1,0 +1,14 @@
+name: Build and test develop - create upgrade tx
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/workflow-call-build-and-test.yml
+    with:
+      rust-version: 1.72.1
+      solana-version: v1.14.16
+      anchor-version: 0.26.0
