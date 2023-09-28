@@ -15,9 +15,7 @@ jobs:
       - name: Rust
         uses: ./.github/actions/rust
         with:
-          rust-version: 1.72.1
-          solana-version: v1.14.16
-          anchor-version: 0.27.0
+          version: 1.72.1
 
       - name: Solana
         uses: ./.github/actions/solana
