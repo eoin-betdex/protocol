@@ -1,4 +1,4 @@
-name: Build and test develop - create upgrade tx
+name: Create the caches
 
 on:
   push:

@@ -16,4 +16,4 @@ runs:
 
     - if: steps.cache-protocol-build-verifiable.cache-hit != 'true'
       shell: bash
-      run: anchor build
+      run: anchor build -v
