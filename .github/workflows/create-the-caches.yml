@@ -1,0 +1,31 @@
+name: Build and test develop - create upgrade tx
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  create-caches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust
+        uses: ./.github/actions/rust
+        with:
+          rust-version: 1.72.1
+          solana-version: v1.14.16
+          anchor-version: 0.27.0
+
+      - name: Solana
+        uses: ./.github/actions/solana
+        with:
+          version: v1.14.16
+
+      - name: Anchor
+        uses: ./.github/actions/anchor
+        with:
+          rust-version: 1.72.1
+          version: 0.27.0

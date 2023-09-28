@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-test:
-    environment: devnet-edge
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,6 +20,7 @@ jobs:
           anchor-version: 0.27.0
 
   build-verifiable-upgrade:
+    environment: devnet-edge
     needs: build-test
     runs-on: ubuntu-latest
     steps:
