@@ -1,0 +1,19 @@
+name: 'Build protocol verifiable'
+inputs:
+  anchor-version:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v3
+      id: cache-protocol-build-verifiable
+      with:
+        path: |
+          target/idl/
+          target/types/
+          target/verifiable/
+        key: ${{ runner.os }}-protocol-build-verifiable-${{ inputs.anchor-version }}-${{ github.sha }}
+
+    - if: steps.cache-protocol-build-verifiable.cache-hit != 'true'
+      shell: bash
+      run: anchor build
